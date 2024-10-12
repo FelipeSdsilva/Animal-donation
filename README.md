@@ -31,8 +31,8 @@ Esta API permite o gerenciamento de adoção de animais, com funcionalidades par
 |	│   │   ├── services                    # Serviços de negócio.
 |	│   └── resources/
 |	│       └── application.properties      # Configurações da aplicação.
-|	|		└── application-test.properties # Perfil de test com banco H2.
-|	|		└── import.sql                  #Inicilalização do banco de dados.
+|	|	└── application-test.properties # Perfil de test com banco H2.
+|	|	└── import.sql                  # Inicilalização do banco de dados.
 |	|
 |	└── test/                              # Testes unitários.
 |	    ├── factories                      # Fabricas para enditadades de teste.
