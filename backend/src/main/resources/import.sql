@@ -1,0 +1,8 @@
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Buddy', 'Um golden retriever amigável.', 'https://example.com/images/buddy.jpg', 'Cachorro', '2019-04-15', 'AVAILABLE');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Luna', 'Uma gata Siamesa brincalhona.', 'https://example.com/images/luna.jpg', 'Gato', '2020-11-02', 'AVAILABLE');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Charlie', 'Um Beagle aventureiro.', 'https://example.com/images/charlie.jpg', 'Cachorro', '2018-06-10', 'ADOPTED');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Milo', 'Um gato rajado curioso.', 'https://example.com/images/milo.jpg', 'Gato', '2021-03-21', 'AVAILABLE');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Bella', 'Uma Bulldog calma e amorosa.', 'https://example.com/images/bella.jpg', 'Cachorro', '2017-09-05', 'ADOPTED');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Max', 'Um Poodle cheio de energia.', 'https://example.com/images/max.jpg', 'Cachorro', '2022-01-12', 'AVAILABLE');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Simba', 'Um majestoso Maine Coon.', 'https://example.com/images/simba.jpg', 'Gato', '2019-08-08', 'AVAILABLE');
+INSERT INTO tb_animals (name, description, image_url, category, birth_date, status) VALUES ('Oliver', 'Um gato Persa carinhoso.', 'https://example.com/images/oliver.jpg', 'Gato', '2020-12-01', 'ADOPTED');
