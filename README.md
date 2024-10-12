@@ -83,7 +83,7 @@ cd adocao-animais
 1. **Build das imagens**:
 
 ```bash
-docker-compose
+docker-compose build
 ```
 
 2. **Iniciar os containers**:
