@@ -8,7 +8,7 @@ Esta API permite o gerenciamento de adoção de animais, com funcionalidades par
 
 - [x] **Cadastro de Animais**: Registre animais com informações básicas.
 - [x] **Listagem de Animais**: Consulte animais disponíveis para adoção e já adotados.
-- [x] **Atualização de Status**: Altere o status do animal (Disponível / Adotado).
+- [x] **Atualização de Status**: Altere o status do animal (Adotar / Adotado).
 - [x] **API REST**: Comunicação entre o **frontend** e **backend**.
 
 <hr>
@@ -17,7 +17,7 @@ Esta API permite o gerenciamento de adoção de animais, com funcionalidades par
 ## 📦 Estrutura do Projeto
   
  ```bash
-/adocao-animais
+/Animai-donation
 ├── backend/
 |	├── main/
 |	│   ├── java/com/felipesouls/
@@ -167,7 +167,7 @@ export const addAnimal = async (newAnimal: Animal): Promise<Animal> => {
 	`GET /animals`
 
 2. Cadastrar Animal
-	`POST /api/animals`
+	`POST /animals`
 
 ```json
 {
