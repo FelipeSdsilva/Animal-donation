@@ -37,7 +37,7 @@ Esta API permite o gerenciamento de adoção de animais, com funcionalidades par
 |	└── test/                              # Testes unitários.
 |	    ├── factories                      # Fabricas para enditadades de teste.
 |	    ├── repositories                   # Testes de repository.
-|	    ├── servives                       # Testes de unidade da camada Service.
+|	    └── servives                       # Testes de unidade da camada Service.
 |
 ├──frontend/
 │  └── src/ 
