@@ -25,7 +25,7 @@ Esta API permite o gerenciamento de adoção de animais, com funcionalidades par
 |	│   │   ├── controllers                 # Controladores REST.
 |	│   │   ├── entities                    # Entidades JPA.
 |	|   |   ├── exceptions                  # Exceções personalizadas.
-|	|	|	├── DTO                         # DTO reproduzir resp/env customizados.
+|	|   |	├── DTO                         # DTO reproduzir resp/env customizados.
 |	|   |   ├── records                     # Bodys customizados.
 |	│   │   ├── repositories                # Repositórios JPA.
 |	│   │   ├── services                    # Serviços de negócio.
