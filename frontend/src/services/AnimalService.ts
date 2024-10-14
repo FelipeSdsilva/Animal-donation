@@ -12,3 +12,8 @@ export const addAnimal = async (newAnimal: Animal): Promise<Animal> => {
     const response = await axios.post(API_URL, newAnimal);
     return response.data;
 };
+
+export const updateAnimalStatus = async (id: number, status: string[]): Promise<Animal> => {
+    const response = await axios.patch(`${API_URL}/${id}/${status}`);
+    return response.data;
+};

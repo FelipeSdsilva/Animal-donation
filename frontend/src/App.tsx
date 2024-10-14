@@ -1,35 +1,50 @@
-import Paper from '@mui/material/Paper';
-import { Animal } from './model/Animal';
 import { useEffect, useState } from 'react';
-import Toolbar from '@mui/material/Toolbar';
-import { addAnimal, fetchAnimals } from './services/AnimalService';
-import GenericDialog from './components/GenericDialogProps/GenericDialog';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
-import { Modal, Box, Typography, Chip, CircularProgress, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  Paper,
+  Box,
+  Toolbar,
+  Button,
+  Modal,
+  Typography,
+  Chip,
+  CircularProgress,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  FormGroup
+} from '@mui/material';
+
+import GenericDialog from './components/GenericDialogProps/GenericDialog';
+import { addAnimal, fetchAnimals, updateAnimalStatus } from './services/AnimalService';
+import { Animal } from './model/Animal';
 import './App.css';
 
 export default function App() {
   const [animals, setAnimals] = useState<Animal[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Animal | null>(null);
 
+  const [formState, setFormState] = useState({
+    name: '',
+    description: '',
+    birthDate: '',
+    imageUrl: '',
+    selectedCategory: '',
+    selectedStatus: '',
+  });
 
-  // Estados para o formulário
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('AVAILABLE');
-  // Estados para mensagens de erro
   const [errors, setErrors] = useState({
     name: '',
     description: '',
-    imageUrl: '',
-    category: '',
     birthDate: '',
+    category: '',
   });
 
   useEffect(() => {
@@ -43,178 +58,102 @@ export default function App() {
         setLoading(false);
       }
     };
-
     loadAnimals();
   }, []);
 
-  const handleRowClick = (params : GridRowParams) => {
-    setSelectedRow(params.row as Animal);
-    setOpen(true);
+  const handleRowClick = (params: GridRowParams) => {
+    const selectedAnimal = params.row as Animal;
+    setSelectedRow(selectedAnimal);
+    setModalOpen(true);
   };
 
+  const handleFormChange = (field: keyof typeof formState, value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      name: formState.name ? '' : 'O nome é obrigatório.',
+      description: formState.description ? '' : 'A descrição é obrigatória.',
+      birthDate: formState.birthDate ? '' : 'A data de nascimento é obrigatória.',
+      category: formState.selectedCategory ? '' : 'A categoria é obrigatória.',
+    };
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((err) => err);
+  };
+
+  const handleAddAnimal = async () => {
+    if (!validateForm()) return;
+
+    const newAnimal: Animal = {
+      ...formState,
+      id: 0,
+      birthDate: new Date(formState.birthDate),
+      status: formState.selectedStatus as 'ADOPTED' | 'AVAILABLE',
+      category: ''
+    };
+
+    try {
+      const response = await addAnimal(newAnimal);
+      setAnimals((prev) => [...prev, response]);
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao adicionar o animal:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormState({
+      name: '',
+      description: '',
+      birthDate: '',
+      imageUrl: '',
+      selectedCategory: '',
+      selectedStatus: '',
+    });
+    setErrors({ name: '', description: '', birthDate: '', category: '' });
+    setDialogOpen(false);
+  };
+
+  const handleStatusChange = async (newStatus: 'ADOPTED' | 'AVAILABLE') => {
+    if (!selectedRow) return;
+
+    try {
+      const updatedAnimal = await updateAnimalStatus(selectedRow.id, [newStatus]);
+      setAnimals((prev) =>
+        prev.map((animal) =>
+          animal.id === updatedAnimal.id ? { ...animal, status: newStatus } : animal
+        )
+      );
+
+      window.location.reload();
+      setModalOpen(false);
+    } catch (error) {
+      console.error('Failed to update the animal status:', error);
+    }
+  };
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Nome', width: 200 },
-    { field: 'description', headerName: 'Descrição', width: 500 },
+    { field: 'description', headerName: 'Descrição', width: 400 },
     { field: 'category', headerName: 'Tipo de Pet', width: 200 },
-    { field: 'birthDate', headerName: 'Nascimento', width: 200 },
+    { field: 'birthDate', headerName: 'Nascimento', width: 150 },
+    { field: 'age', headerName: 'Idade', width: 100 },
     {
       field: 'status',
       headerName: 'Status',
       width: 200,
       renderCell: (params: GridRenderCellParams) => (
         <Chip
-          label={params.value === 'ADOPTED' ? 'ADOTADO' : 'ADOTAR'}
+          label={params.value === 'ADOPTED' ? 'ADOTADO' : 'DISPONÍVEL'}
           color={params.value === 'ADOPTED' ? 'error' : 'success'}
           style={{ color: 'white' }}
         />
       ),
     },
   ];
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
-      name: '',
-      description: '',
-      imageUrl: '',
-      category: '',
-      birthDate: '',
-    };
-
-    if (!name) {
-      newErrors.name = 'O nome é obrigatório.';
-      isValid = false;
-    }
-    if (!description) {
-      newErrors.description = 'A descrição é obrigatória.';
-      isValid = false;
-    }
-    if (!selectedCategory) {
-      newErrors.category = 'A Tipo de Pet é obrigatório.';
-      isValid = false;
-    }
-    if (!birthDate) {
-      newErrors.birthDate = 'A data de nascimento é obrigatória.';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleAddAnimal = async () => {
-    if (!validateForm()) return; // Se a validação falhar, não continue
-
-    const newAnimal: Animal = {
-      name,
-      description,
-      imageUrl,
-      category: selectedCategory,
-      birthDate: new Date(birthDate),
-      status: selectedStatus as 'ADOPTED' | 'AVAILABLE',
-      id: 0
-    };
-
-
-    try {
-      const response = await addAnimal(newAnimal);
-      console.log(response);
-
-      setAnimals((prev) => [...prev, response]); // Adiciona o novo animal à lista
-      handleDialogClose();
-      setName('');
-      setDescription('');
-      setImageUrl('');
-      setSelectedCategory('');
-      setBirthDate('');
-      setSelectedStatus('AVAILABLE'); // Reseta o status
-      setErrors({ name: '', imageUrl: '', description: '', category: '', birthDate: '' }); // Reseta mensagens de erro
-    } catch (error) {
-      console.error('Erro ao adicionar o animal:', error);
-    }
-  };
-
-  const handleDialogClose = () => setDialogOpen(false);
-
-  // Conteúdo do formulário para o diálogo de adição
-  const animalFormContent = (
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      handleAddAnimal();
-    }}>
-      <TextField
-        label="Nome"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        error={!!errors.name} // Aplica erro se houver
-        helperText={errors.name} // Mensagem de erro
-      />
-      <TextField
-        label="Descrição"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        error={!!errors.description} // Aplica erro se houver
-        helperText={errors.description} // Mensagem de erro
-      />
-      <TextField
-        label="URL da imagem"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-      />
-      <FormControl fullWidth margin="normal" error={!!errors.category}>
-        <InputLabel id="category-select-label">Tipo de Pet</InputLabel>
-        <Select
-          labelId="category-select-label"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          label="Tipo de Pet"
-        >
-          <MenuItem value="cachorro">Cachorro</MenuItem>
-          <MenuItem value="gato">Gato</MenuItem>
-          <MenuItem value="coelho">Coelho</MenuItem>
-          {/* Adicione mais opções conforme necessário */}
-        </Select>
-        {errors.category && <Typography color="error">{errors.category}</Typography>} {/* Mensagem de erro */}
-      </FormControl>
-      <TextField
-        label="Data de Nascimento"
-        variant="outlined"
-        type="date"
-        fullWidth
-        margin="normal"
-        InputLabelProps={{
-          shrink: true,
-        }}
-        value={birthDate}
-        onChange={(e) => setBirthDate(e.target.value)}
-        error={!!errors.birthDate} // Aplica erro se houver
-        helperText={errors.birthDate} // Mensagem de erro
-      />
-      <FormControl fullWidth margin="normal">
-        <InputLabel id="status-select-label">Status</InputLabel>
-        <Select
-          labelId="status-select-label"
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value as 'ADOPTED' | 'AVAILABLE')}
-          label="Status"
-        >
-          <MenuItem value="AVAILABLE">ADOTAR</MenuItem>
-          <MenuItem value="ADOPTED">ADOTADO</MenuItem>
-        </Select>
-      </FormControl>
-    </form>
-  );
 
   return (
     <>
@@ -224,6 +163,7 @@ export default function App() {
           Registrar Novo Animal
         </Button>
       </Toolbar>
+
       <Paper sx={{ height: '100%', width: '100%' }}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -243,42 +183,100 @@ export default function App() {
       <GenericDialog
         open={dialogOpen}
         title="Registrar Novo Animal"
-        onClose={handleDialogClose}
-        onConfirm={handleAddAnimal} // Chama a função de adicionar
-        content={animalFormContent} // Passa o conteúdo do formulário
-      />
-
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 700,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <Typography id="modal-description" sx={{ mt: 2 }} variant="h6">Detalhes do Animal</Typography>
-          {selectedRow && (
-            <Typography sx={{ mt: 2 }}>
-              <img src={selectedRow.imageUrl} alt="Animal" /><br />
-              <strong>ID:</strong> {selectedRow.id}<br />
-              <strong>Nome:</strong> {selectedRow.name}<br />
-              <strong>Descrição:</strong> {selectedRow.description}<br />
-              <strong>Categoria:</strong> {selectedRow.category}<br />
-              <strong>Data de Nascimento:</strong> {new Date(selectedRow.birthDate).toDateString()}<br />
-              <InputLabel id="status-select-label">Status</InputLabel>
+        onClose={() => setDialogOpen(false)}
+        onConfirm={handleAddAnimal}
+        content={
+          <form>
+            <TextField
+              label="Nome"
+              fullWidth
+              margin="normal"
+              value={formState.name}
+              onChange={(e) => handleFormChange('name', e.target.value)}
+              error={!!errors.name}
+              helperText={errors.name}
+            />
+            <TextField
+              label="Descrição"
+              fullWidth
+              margin="normal"
+              value={formState.description}
+              onChange={(e) => handleFormChange('description', e.target.value)}
+              error={!!errors.description}
+              helperText={errors.description}
+            />
+            <TextField
+              label="URL da imagem"
+              fullWidth
+              margin="normal"
+              value={formState.imageUrl}
+              onChange={(e) => handleFormChange('imageUrl', e.target.value)}
+            />
+            <FormControl fullWidth margin="normal" error={!!errors.category}>
+              <InputLabel>Tipo de Pet</InputLabel>
               <Select
-                labelId="status-select-label"
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value as 'ADOPTED' | 'AVAILABLE')}
-                label="Status"
+                value={formState.selectedCategory}
+                onChange={(e) => handleFormChange('selectedCategory', e.target.value)}
               >
-                <MenuItem value="AVAILABLE">ADOTAR</MenuItem>
+                <MenuItem value="cachorro">Cachorro</MenuItem>
+                <MenuItem value="gato">Gato</MenuItem>
+                <MenuItem value="coelho">Coelho</MenuItem>
+                <MenuItem value="passaro">Passaro</MenuItem>
+                <MenuItem value="tartaruga">Tartaruga</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label="Data de Nascimento"
+              fullWidth
+              type="date"
+              margin="normal"
+              value={formState.birthDate}
+              onChange={(e) => handleFormChange('birthDate', e.target.value)}
+              error={!!errors.birthDate}
+              helperText={errors.birthDate}
+              InputLabelProps={{ shrink: true }}
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={formState.selectedStatus}
+                onChange={(e) => handleFormChange('selectedStatus', e.target.value as 'ADOPTED' | 'AVAILABLE')}
+              >
+                <MenuItem value="AVAILABLE">DISPONÍVEL</MenuItem>
                 <MenuItem value="ADOPTED">ADOTADO</MenuItem>
               </Select>
-            </Typography>
+            </FormControl>
+          </form>
+        }
+      />
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Box sx={{
+          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: 700, bgcolor: 'background.paper', boxShadow: 24, p: 4
+        }}>
+          {selectedRow && (
+            <>
+              <Typography variant="h6">Detalhes do Animal</Typography>
+              <img src={selectedRow.imageUrl} alt="Animal" width={200} />
+              <Typography><strong>ID:</strong> {selectedRow.id}</Typography>
+              <Typography><strong>Nome:</strong> {selectedRow.name}</Typography>
+              <Typography><strong>Descrição:</strong> {selectedRow.description}</Typography>
+              <Typography><strong>Categoria:</strong> {selectedRow.category}</Typography>
+              <Typography><strong>Nascimento:</strong> {new Date(selectedRow.birthDate).toLocaleDateString()}</Typography>
+              <Typography><strong>Idade:</strong> {selectedRow.age}</Typography>
+
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox checked={selectedRow.status === 'AVAILABLE'} onChange={() => handleStatusChange('AVAILABLE')} />}
+                  label="Disponível"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={selectedRow.status === 'ADOPTED'} onChange={() => handleStatusChange('ADOPTED')} />}
+                  label="Adotado"
+                />
+              </FormGroup>
+            </>
           )}
         </Box>
       </Modal>
