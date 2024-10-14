@@ -27,11 +27,11 @@ const GenericDialog: React.FC<GenericDialogProps> = ({
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>{content}</DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">
+                <Button variant="contained" onClick={onClose} color="error">
                     Cancelar
                 </Button>
                 {onConfirm && (
-                    <Button onClick={onConfirm} color="primary">
+                    <Button variant="contained" onClick={onConfirm}  color="success">
                         Confirmar
                     </Button>
                 )}
