@@ -14,6 +14,7 @@ public class AnimalDTO {
     private String imageUrl;
     private String category;
     private LocalDate birthDate;
+    private Integer age;
     private Status status;
 
     public AnimalDTO(Long id, String name, String description, String imageUrl, String category, LocalDate birthDate, Status status) {
@@ -76,6 +77,14 @@ public class AnimalDTO {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
     public Status getStatus() {
