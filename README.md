@@ -89,7 +89,7 @@ docker-compose build
 2. **Iniciar os containers**:
 
 ```bash
-`docker-compose up
+docker-compose up
 ```
 
 ### Passo 2: Executar o Backend
